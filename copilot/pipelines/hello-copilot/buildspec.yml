@@ -20,9 +20,6 @@ phases:
     commands:
       - ls -l
       - export COLOR="false"
-      - git clone https://github.com/uktrade/copilot-pipeline-poc 
-      - cp -r copilot-pipeline-poc/* $CODEBUILD_SRC_DIR/
-      - ls -l $CODEBUILD_SRC_DIR/copilot/pipelines/
       - pipeline=$(cat $CODEBUILD_SRC_DIR/copilot/pipelines/hello-copilot/manifest.yml | ruby -ryaml -rjson -e 'puts JSON.pretty_generate(YAML.load(ARGF))')
       - pl_envs=$(echo $pipeline | jq -r '.stages[].name')
       # Find all the local services in the workspace.
