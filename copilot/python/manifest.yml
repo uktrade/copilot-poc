@@ -3,7 +3,7 @@
 #  https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/
 
 # Your service name will be used in naming your resources like log groups, ECS services, etc.
-name: django
+name: python
 type: Load Balanced Web Service
 
 # Distribute traffic to your service.
@@ -15,15 +15,16 @@ http:
   # You can specify a custom health check path. The default is "/".
   healthcheck: '/'
 
-# Configuration for your containers and service.
+# Configuration for your containers and service.DATABASE_URL
 image:
-  build: copilot/django/Dockerfile
+  build: svc/python/Dockerfile
   #location: nginx
   # Port exposed through your container to route traffic to it.
   port: 8080
 
 cpu: 256       # Number of CPU units for the task.
 memory: 512    # Amount of memory in MiB used by the task.
+platform: linux/x86_64  # See https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/#platform
 count: 1       # Number of tasks that should be running in your service.
 exec: true     # Enable running commands in your container.
 
@@ -36,12 +37,9 @@ variables:                    # Pass environment variables as key value pairs.
   LOG_LEVEL: info
 
 secrets:
-  SECRET_KEY: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DJANGO_SECRET_KEY
-  ALLOWED_HOSTS: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DJANGO_ALLOWED_HOSTS
-  DEBUG:  /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DJANGO_DEBUG
   DB_INFO:
-    secretsmanager: '${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/django'
-  
+    secretsmanager: '${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/python'
+    
 #secrets:                      # Pass secrets from AWS Systems Manager (SSM) Parameter Store.
 #  GITHUB_TOKEN: GITHUB_TOKEN  # The key is the name of the environment variable, the value is the name of the SSM parameter.
 

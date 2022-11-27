@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 python:3.10.4
+FROM python:3.10.4
 EXPOSE 8080
 WORKDIR /code
 COPY requirements.txt /code/
