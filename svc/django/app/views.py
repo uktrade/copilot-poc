@@ -15,7 +15,7 @@ def index(request):
         DB_TYPE = "SQLite"
     db_status = SampleTable.objects.get(sampleid=1).sample_name
 
-    http_page = f"We have a working site<br>{db_status} using a {DB_TYPE} database<br>"
+    http_page = f"We have a working site<br>{db_status} using a {DB_TYPE} database<br> with pipeline"
 
     if settings.REDIS_HOST:
         r = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0, ssl=True)
