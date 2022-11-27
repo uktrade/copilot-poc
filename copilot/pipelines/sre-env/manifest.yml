@@ -15,7 +15,7 @@ source:
   provider: GitHub
   # Additional properties that further specify the location of the artifacts.
   properties:
-    branch: main
+    branch: env_pipeline
     repository: https://github.com/uktrade/copilot-poc
     # Optional: specify the name of an existing CodeStar Connections connection.
     # connection_name: a-connection
