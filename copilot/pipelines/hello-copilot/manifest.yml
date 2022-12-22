@@ -20,8 +20,6 @@ source:
     # Optional: specify the name of an existing CodeStar Connections connection.
     # connection_name: a-connection
 
-build:
-  buildspec: copilot/pipelines/buildspec.yml
 # This section defines the order of the environments your pipeline will deploy to.
 stages:
   - # The name of the environment.
