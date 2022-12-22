@@ -3,11 +3,11 @@ version: 0.2
 
 batch:
   fast-fail: false
-  build-list:
+  build-grapht:
     - identifier: cdkcopilotdemopipelinecodeb-HoAuV50byjll
-      env:
-        variables:
-          REPOSITORY: https://github.com/uktrade/copilot_poc
+        env:
+          variables:
+            REPOSITORY: https://github.com/uktrade/copilot_poc
 
 
 phases:
