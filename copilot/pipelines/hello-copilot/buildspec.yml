@@ -4,7 +4,7 @@ version: 0.2
 batch:
   fast-fail: false
   build-graph:
-    - identifier: cdkcopilotdemopipelinecodeb-HoAuV50byjll
+    - identifier: cdkcopilotdemopipelinecodeb
       env:
         variables:
           REPOSITORY_TOWORKON: https://github.com/uktrade/copilot_poc
