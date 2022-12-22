@@ -1,5 +1,15 @@
 # Buildspec runs in the build stage of your pipeline.
 version: 0.2
+
+batch:
+  fast-fail: false
+  build-list:
+    - identifier: cdkcopilotdemopipelinecodeb-HoAuV50byjll
+      env:
+        variables:
+          REPOSITORY: https://github.com/uktrade/copilot_poc
+
+
 phases:
   install:
     runtime-versions:
