@@ -24,7 +24,7 @@ phases:
       - chmod +x ./copilot-linux
   build:
     commands:
-      - aws codebuild start-build --project-name cdkcopilotdemopipelinecodeb-HoAuV50byjll
+      - aws codebuild start-build --project-name cdkcopilotdemopipelinecodeb-HoAuV50byjll --service-role cdk-copilot-demo-pipeline-cdkcopilotdemopipelineRo-1C1RAZQ5YF8DS
       - echo "Run your tests"
       # - make test
   post_build:
