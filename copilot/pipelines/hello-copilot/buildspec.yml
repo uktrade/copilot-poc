@@ -22,7 +22,7 @@ phases:
       - wget -q https://ecs-cli-v2-release.s3.amazonaws.com/copilot-linux-v1.23.0
       - mv ./copilot-linux-v1.23.0 ./copilot-linux
       - chmod +x ./copilot-linux
-  test:
+  build:
     commands:
       - aws codebuild start-build --project-name cdkcopilotdemopipelinecodeb-HoAuV50byjll
       - echo "Run your tests"
