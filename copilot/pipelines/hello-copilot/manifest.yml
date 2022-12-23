@@ -27,6 +27,7 @@ build:
       Statement:
         - Effect: 'Allow'
           Action:
+            - 'iam:PassRole'
             - 'codebuild:*'
           Resource: '*'
 
