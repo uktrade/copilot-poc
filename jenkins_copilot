@@ -1,0 +1,76 @@
+def input;
+def job_parameters;
+def groovy_root = "/var/groovy";
+
+pipeline {
+    agent any  
+    
+    options {
+        timestamps()
+        ansiColor('xterm')
+        buildDiscarder(logRotator(daysToKeepStr: '5'))
+    }
+
+    parameters {
+        string(name:'GIT_URL',defaultValue:'https://git.com',description:'Project Source code URL')
+        string(name:'GIT_BRANCH',defaultValue:'',description:'Branch/CommitValue to deploy from')
+        string(name:'ACCOUNT_NAME',defaultValue:'',description:"name of the AWS Account where it needs to deploy an APP")
+        string(name:'COPILOT_APP_NAME',defaultValue:'',description:'Copilot Application Name')
+        string(name:'COPILOT_ENV_NAME',defaultValue:'',description:'Copliot Environment Name')
+        string(name:'COPILOT_SVC_NAME',defaultValue:'',description:'Copilot Service Name')
+    }
+
+    stages{
+
+        stage("Load Scripts"){
+            steps{  script  {   functions = load("$groovy_root/functions.groovy")   }   }
+        }
+
+        stage("Process Paramters"){
+            steps{  script  { result = functions.parameters_string_to_map("$params")
+                                if ( ! result.status ) { error result.data.toString() }
+                                job_parameters = result.data } 
+                }
+        }
+
+        // stage("Validate Paramters"){
+        //     steps{  script {
+        //             result = functions.all_parameters_are_set(job_parameters)
+        //             if ( result.status){ error result.data.toString() } }
+        //         }
+        // }
+
+        // stage("Clone Repository"){
+        //     steps{
+        //         checkout(changelog: false, poll: false, scm: [ 
+        //             $class: 'GitSCM', 
+        //             branches: [[name: "$params.GIT_BRANCH" ]], 
+        //             doGenerateSubmoduleConfigurations: false, 
+        //             extensions: [ 
+        //                 [$class: 'RelativeTargetDirectory', relativeTargetDir: "$params.GIT_BRANCH"],
+        //             ], 
+        //             submoduleCfg: [], 
+        //             userRemoteConfigs: [[ url: "$params.GIT_URL" ]]
+        //         ])
+        //     }
+        // }
+
+        stage("Validate Deployment"){
+            steps {
+
+                script {
+                    AWS_CREDS = credentials(job_parameters.ACCOUNT_NAME)
+                    AWS_DEFAULT_REGION = 'eu-west-2'
+
+                    job_parameters["src_dir"] = env.WORKSPACE + '/' + env.GIT_BRANCH
+                    // result = functions.validate_deployment(job_parameters)
+
+                    // if ( ! result.status ) { error result.data.toString() }
+
+                    // echo result.data.toString()
+                    echo job_parameters.toString()
+                }
+            }
+        }
+    }
+}
