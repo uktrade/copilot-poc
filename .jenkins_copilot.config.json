@@ -1,0 +1,11 @@
+{
+    "name": "jenkins_copilot",
+    "params": {
+        "GIT_URL": "git@github.com:uktrade/copilot-poc.git",
+        "GIT_BRANCH": "hellocopilot",
+        "ACCOUNT_NAME": "DIT_DEV",
+        "COPILOT_APP": "dvadgama",
+        "COPILOT_ENV": "test",
+        "COPILOT_SVC": "hello-copilot"
+    }
+}
