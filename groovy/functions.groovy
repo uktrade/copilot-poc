@@ -195,14 +195,13 @@ def deploy_app(Map parameters,print_stream){
 
     /* closure to execute command */
     def exec_command = { 
-        print_stream,command -> 
+        command -> 
         def output  = new StringBuilder()
         def error   = new StringBuilder()
         def exit_status = 0
 
         def proc = command.execute(null,parameters.SOURCE_DIR)
-        proc.in.eachLine{ line -> print_stream(line) }
-        proc.out.close()
+        proc.consumeProcessOutput(output,error)
         proc.waitForOrKill( 10 * 60 * 1000)
 
         exit_status = proc.exitValue()
@@ -211,7 +210,7 @@ def deploy_app(Map parameters,print_stream){
         return [ status: true , data: "service ${parameters.COPILOT_SVC} deployed" ]
     }
 
-    def copilot_deploy = exec_command(print_stream,"${credentials_string.data} copilot deploy --name ${parameters.COPILOT_SVC} --app ${parameters.COPILOT_APP} --env ${parameters.COPILOT_ENV} --force")
+    def copilot_deploy = exec_command("${credentials_string.data} copilot deploy --name ${parameters.COPILOT_SVC} --app ${parameters.COPILOT_APP} --env ${parameters.COPILOT_ENV} --force")
 
     return copilot_deploy
 }
