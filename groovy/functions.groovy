@@ -206,8 +206,8 @@ def deploy_app(Map parameters,print_stream){
 
         exit_status = proc.exitValue()
 
-        if ( exit_status != 0) { return [ status: false , data: "service ${parameters.COPILOT_SVC} deployed" ] }
-        return [ status: true , data: "service ${parameters.COPILOT_SVC} deployed" ]
+        if(! error.toString().equals("")) { return [ status: false , data: "[${exit_status.toString()}]: ${error.toString()}" ] }
+        return [ status: true , data: output.toString() ]
     }
 
     def copilot_deploy = exec_command("${credentials_string.data} copilot deploy --name ${parameters.COPILOT_SVC} --app ${parameters.COPILOT_APP} --env ${parameters.COPILOT_ENV} --force")
