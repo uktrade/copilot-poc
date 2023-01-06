@@ -3,6 +3,7 @@ import jenkins.*
 import jenkins.model.* 
 import hudson.*
 import hudson.model.*
+import groovy.json.JsonSlurper
 
 def parameters_string_to_map(String parameter_string){
 
@@ -23,7 +24,7 @@ def parameters_string_to_map(String parameter_string){
             else { [ (key_name) : (pair.last().trim()) ] }
         }
 
-    return [ status:true, data: params_map ]
+    return [ status: true, data: params_map ]
 }
 
 
@@ -35,7 +36,7 @@ def all_parameters_are_set(Map parameters){
 */
     def is_any_parameter_unset = false
     def unset_paramters = []
-    def message = "Success: Parameter Validation"
+    def message = "All Paramters are valid"
 
     parameters.each { key , value ->  if( ! value ) {  unset_paramters.add(key) } }
 
@@ -55,7 +56,7 @@ def all_parameters_are_set(Map parameters){
 
         keys = unset_paramters.join(",")
 
-        message = "Failed: $prefix $keys $artical not set"
+        message = "$prefix $keys $artical not set"
     }
 
       
@@ -116,15 +117,17 @@ def validate_deployment(Map parameters){
         def output  = new StringBuilder()
         def error   = new StringBuilder()
 
-        def proc = command.execute(null,parameters.source_dir)
+        def proc = command.execute(null,parameters.SOURCE_DIR)
         proc.waitForProcessOutput(output,error)
 
         def exit_status = proc.exitValue()
 
-        if(! error.toString().equals("")) { return [ status: false , data: "Error code:${exit_status.toString()} Error Message: ${error.toString()}" ] }
+        if(! error.toString().equals("")) { return [ status: false , data: "[${exit_status.toString()}]: ${error.toString()}" ] }
         return [ status: true , data: output.toString() ]
     }
 
+
+    def slurper = new JsonSlurper()
 
     /* 
         get all APPS in account and check if app we have defined in parameters as COPILOT_APP is in here 
@@ -148,11 +151,11 @@ def validate_deployment(Map parameters){
         get all ENVIRONMENTS for in COPILOT_APP account and check if COPILOT_ENV is in here 
     */
 
-    def copilot_app_envs = exec_command("${credentials_string.data} copilot env ls --app ${parameters.COPILOT_APP}")
+    def copilot_app_envs = exec_command("${credentials_string.data} copilot env ls --app ${parameters.COPILOT_APP}  --json")
         
     if ( ! copilot_app_envs.status ) { return copilot_app_envs }
 
-    copilot_app_envs = copilot_app_envs.data.split('\n').collect{it.toLowerCase().trim()}
+    copilot_app_envs = slurper.parseText(copilot_app_envs.data).environments.name
 
     if( ! copilot_app_envs.contains(parameters.COPILOT_ENV.toLowerCase())){
         return [ status: false, data: "${parameters.COPILOT_ENV} not found in ${parameters.COPILOT_APP} account" ]
@@ -165,20 +168,49 @@ def validate_deployment(Map parameters){
         get all Services for in COPILOT_APP in given (COPILOT_ENV) environment  and,check if COPILOT_SVC is in here 
     */
 
-    def copilot_services = exec_command("${credentials_string.data} copilot svc ls --app ${parameters.COPILOT_APP}")
+    def copilot_services = exec_command("${credentials_string.data} copilot svc ls --app ${parameters.COPILOT_APP} --json")
         
     if ( ! copilot_services.status ) { return copilot_services }
 
-    copilot_services = copilot_services.data.split('\n').collect{it.toLowerCase().trim()}
+    copilot_services = slurper.parseText(copilot_services.data).services.name
 
     if( ! copilot_services.contains(parameters.COPILOT_SVC.toLowerCase())){
-        return [ status: false, data: "${parameters.COPILOT_SVC} not found in ${parameters.COPILOT_ENV} for ${parameters.COPILOT_APP}" ]
+        return [ status: false, data: "service ${parameters.COPILOT_SVC} not found in env ${parameters.COPILOT_ENV} for ${parameters.COPILOT_APP}" ]
     }
     // else { 
     //      return [ status: true , data: "app ${parameters.COPILOT_ENV} found in  ${parameters.COPILOT_APP} account" ]
     // }
 
-    return [ status: true, data: "Success: Found ${parameters.COPILOT_APP}/${parameters.COPILOT_ENV}/${parameters.COPILOT_SVCP}" ]
+    return [ status: true, data: "Found ${parameters.COPILOT_APP}/${parameters.COPILOT_ENV}/${parameters.COPILOT_SVC}" ]
+}
+
+
+def deploy_app(Map parameters){
+
+    /* get credentials string tp be used with command */
+
+    def credentials_string = get_credentials(parameters.ACCOUNT_NAME)
+
+    if ( ! credentials_string.status ){ return credentials_string }
+
+    /* closure to execute command */
+    def exec_command = { 
+        command -> 
+        def output  = new StringBuilder()
+        def error   = new StringBuilder()
+
+        def proc = command.execute(null,parameters.SOURCE_DIR)
+        proc.waitForProcessOutput(output,error)
+
+        def exit_status = proc.exitValue()
+
+        if(! error.toString().equals("")) { return [ status: false , data: "[${exit_status.toString()}]: ${error.toString()}" ] }
+        return [ status: true , data: output.toString() ]
+    }
+
+    def copilot_deploy = exec_command("${credentials_string.data} copilot deploy --name ${parameters.COPILOT_SVC} --app ${parameters.COPILOT_APP} --env ${parameters.COPILOT_ENV} --force")
+
+    return copilot_deploy
 }
 
 this

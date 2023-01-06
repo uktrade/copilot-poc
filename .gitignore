@@ -1,6 +1,8 @@
 *secret*.yaml
 *secret*.yml
 
+.*.config.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
