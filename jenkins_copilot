@@ -115,7 +115,9 @@ pipeline {
 
         stage("Deploy"){
             steps{  script {
-                                result = functions.deploy_app(job_parameters)
+                                def print_stream = { line -> echo "$line" }
+
+                                result = functions.deploy_app(job_parameters,print_stream)
 
                                 if( ! result.status ){ 
                                     echo "${log_error}${result.data}${log_end}"

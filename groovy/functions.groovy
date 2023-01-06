@@ -185,7 +185,7 @@ def validate_deployment(Map parameters){
 }
 
 
-def deploy_app(Map parameters){
+def deploy_app(Map parameters,print_stream){
 
     /* get credentials string tp be used with command */
 
@@ -195,21 +195,23 @@ def deploy_app(Map parameters){
 
     /* closure to execute command */
     def exec_command = { 
-        command -> 
+        print_stream,command -> 
         def output  = new StringBuilder()
         def error   = new StringBuilder()
+        def exit_status = 0
 
         def proc = command.execute(null,parameters.SOURCE_DIR)
-        proc.consumeProcessOutput(output,error)
+        proc.in.eachLine{ line -> print_stream(line) }
+        proc.out.close()
         proc.waitForOrKill( 10 * 60 * 1000)
 
-        def exit_status = proc.exitValue()
+        exit_status = proc.exitValue()
 
-        if(! error.toString().equals("")) { return [ status: false , data: "[${exit_status.toString()}]: ${error.toString()}" ] }
-        return [ status: true , data: output.toString() ]
+        if ( exit_status != 0) { return [ status: false , data: "service ${parameters.COPILOT_SVC} deployed" ] }
+        return [ status: true , data: "service ${parameters.COPILOT_SVC} deployed" ]
     }
 
-    def copilot_deploy = exec_command("${credentials_string.data} copilot deploy --name ${parameters.COPILOT_SVC} --app ${parameters.COPILOT_APP} --env ${parameters.COPILOT_ENV} --force")
+    def copilot_deploy = exec_command(print_stream,"${credentials_string.data} copilot deploy --name ${parameters.COPILOT_SVC} --app ${parameters.COPILOT_APP} --env ${parameters.COPILOT_ENV} --force")
 
     return copilot_deploy
 }
