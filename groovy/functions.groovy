@@ -200,7 +200,8 @@ def deploy_app(Map parameters){
         def error   = new StringBuilder()
 
         def proc = command.execute(null,parameters.SOURCE_DIR)
-        proc.waitForProcessOutput(output,error)
+        proc.consumeProcessOutput(output,error)
+        proc.waitForOrKill( 10 * 60 * 1000)
 
         def exit_status = proc.exitValue()
 

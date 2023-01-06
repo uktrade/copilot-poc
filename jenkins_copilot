@@ -113,10 +113,8 @@ pipeline {
                 }   }
         }
 
-
         stage("Deploy"){
             steps{  script {
-
                                 result = functions.deploy_app(job_parameters)
 
                                 if( ! result.status ){ 
@@ -127,5 +125,8 @@ pipeline {
                                 echo "${log_info}${result.data}${log_end}"
                 }   }
         }
+
+ 
+
     }
 }
